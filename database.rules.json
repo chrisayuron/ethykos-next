@@ -25,7 +25,8 @@
       "$institutionId": {
         ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active')",
         ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
-      }
+      },
+      ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
     },
     "institutionSlugs": {
       ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",

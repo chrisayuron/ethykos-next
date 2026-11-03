@@ -5,3 +5,11 @@ node_modules/
 *.log
 service-account*.json
 *-service-account*.json
+
+.vercel
+.env.local
+.env.production
+*.pem
+*.p12
+credentials*.json
+serviceAccountKey*.json
