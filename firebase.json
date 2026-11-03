@@ -1,0 +1,38 @@
+{
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "README*.md",
+      "functions/**",
+      "scripts/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/admin.html"
+      },
+      {
+        "source": "/login",
+        "destination": "/login.html"
+      },
+      {
+        "source": "/estudiante",
+        "destination": "/estudiante.html"
+      },
+      {
+        "source": "/docente",
+        "destination": "/docente.html"
+      },
+      {
+        "source": "/actividades/precio-es",
+        "destination": "/sesion2-precio-es.html"
+      }
+    ]
+  }
+}

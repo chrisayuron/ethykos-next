@@ -1,0 +1,51 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83')",
+        ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+        "profile": {
+          "mustChangePassword": {
+            ".write": "auth != null && auth.uid === $uid && auth.token.email_verified === true && newData.val() === false"
+          }
+        }
+      }
+    },
+    "memberships": {
+      ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83')",
+        ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+      }
+    },
+    "institutions": {
+      ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      "$institutionId": {
+        ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active')",
+        ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+      }
+    },
+    "institutionSlugs": {
+      ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      "$slug": {
+        ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+        ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+      }
+    },
+    "auditLogs": {
+      ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+    },
+    "platform": {
+      ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+    },
+    "institutionMembers": {
+      ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+      ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+    }
+  }
+}
