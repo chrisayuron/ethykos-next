@@ -1,6 +1,7 @@
 const {getAdmin,requireAdmin}=require('../_lib/firebaseAdmin');
 const {Resend}=require('resend');
 const {invitationEmail}=require('../_lib/emailTemplates');
+const APP_URL=process.env.APP_URL||'https://ethykos-next.vercel.app';
 module.exports=async function(req,res){
  if(req.method!=='POST')return res.status(405).json({message:'Método no permitido.'});
  let uid;
@@ -31,7 +32,7 @@ module.exports=async function(req,res){
   await db.ref(`invitations/${uid}`).update({status:'sent',sentAt:Date.now(),providerId:sent.data&&sent.data.id||null});
   return res.status(201).json({created:true,emailSent:true,uid});
  }catch(err){
-  console.error('[V4.12.2 invitation/create]',err.code||err.message||'UNKNOWN');
+  console.error('[V4.12.3 invitation/create]',err.code||err.message||'UNKNOWN');
   if(err.status)return res.status(err.status).json({code:err.message,message:err.status===401?'Inicia sesión nuevamente.':'No tienes permisos para realizar esta acción.'});
   if(err.message==='SERVER_CONFIG_MISSING')return res.status(500).json({code:'SERVER_CONFIG_MISSING',message:'El servicio de invitaciones no está configurado completamente.'});
   if(err.code==='validation_error'||/testing|only send|verify a domain/i.test(err.message||''))return res.status(400).json({code:'RESEND_TEST_RECIPIENT_LIMIT',message:'El servicio de correo está en modo de prueba y no permite enviar a este destinatario.'});

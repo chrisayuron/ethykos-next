@@ -40,3 +40,12 @@ La respuesta `sent: true` significa que Resend aceptó la solicitud; no garantiz
 - El correo técnico de prueba reutiliza la misma identidad visual.
 - Maquetación con tablas y estilos en línea para mejorar compatibilidad con Gmail y Outlook, además de adaptación a pantallas pequeñas.
 - No cambia la lógica de creación de cuentas, autenticación ni membresías.
+
+
+## V4.12.3 — Vista previa segura de invitación docente
+
+- Se agrega el endpoint protegido `POST /api/email/invitation-preview`, exclusivo para el administrador global.
+- El panel Docentes incorpora el botón «Enviar vista previa de invitación» dirigido al correo administrador `rrnewball@gmail.com`.
+- La vista previa usa datos demostrativos y la misma plantilla institucional de invitación, con botones visuales no funcionales claramente identificados.
+- Esta operación no crea usuarios, no genera enlaces de verificación/restablecimiento y no modifica Firebase Realtime Database ni Firebase Authentication.
+- Se define `APP_URL` en el endpoint real de invitaciones para evitar una referencia no declarada al construir enlaces de acción.
