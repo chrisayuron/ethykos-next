@@ -1,6 +1,6 @@
 {
   "name": "ethykos-next",
-  "version": "4.12.0",
+  "version": "4.12.1",
   "private": true,
   "engines": {
     "node": ">=20"
