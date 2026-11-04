@@ -32,3 +32,11 @@ Sube el contenido de este ZIP al proyecto conectado a Vercel y despliega. Vercel
 Se agrega `POST /api/email/test`, protegido por Firebase ID token y UID administrador. Envía un mensaje de prueba fijo a `rrnewball@gmail.com` usando Resend. No crea cuentas ni escribe en Realtime Database. Desde el panel de administración, sección Docentes, el botón **Enviar correo de prueba a mi cuenta** ejecuta esta ruta.
 
 La respuesta `sent: true` significa que Resend aceptó la solicitud; no garantiza por sí sola que el mensaje haya llegado a la bandeja. Revisar Recibidos, Spam y el panel Logs de Resend. El remitente predeterminado sigue siendo `onboarding@resend.dev`; el destinatario de prueba está fijado deliberadamente al correo propietario indicado.
+
+## V4.12.2 — identidad visual de correos
+- Se centralizan las plantillas HTML en `api/_lib/emailTemplates.js`.
+- La invitación docente adopta el diseño institucional aprobado: encabezado azul Éthykos Next, lema, bienvenida, datos de cuenta y panel de activación.
+- Se mantienen dos acciones independientes y explícitas: confirmar el correo y establecer la contraseña. Esto corresponde al flujo real de Firebase y evita presentar como una sola acción dos enlaces distintos.
+- El correo técnico de prueba reutiliza la misma identidad visual.
+- Maquetación con tablas y estilos en línea para mejorar compatibilidad con Gmail y Outlook, además de adaptación a pantallas pequeñas.
+- No cambia la lógica de creación de cuentas, autenticación ni membresías.
