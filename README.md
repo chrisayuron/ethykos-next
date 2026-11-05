@@ -1,30 +1,38 @@
-# Éthykos Next — V4.11
+# Éthykos Next — V4.13.0
 
-## Base
-Esta versión parte del proyecto V4.10 / V4.10.1 entregado por el usuario. Conserva Firebase Authentication y Realtime Database, sin Cloud Functions.
+## V4.13.0 — Base de autorización y contexto institucional
 
-## V4.11 — Revocación efectiva de acceso institucional
-- El panel docente escucha en tiempo real `memberships/{uid}/{institutionId}`.
-- El panel estudiante escucha en tiempo real `memberships/{uid}/{institutionId}`.
-- Si la membresía desaparece, deja de estar `active` o no corresponde al rol esperado, se informa la revocación, se cierra la sesión y se elimina `ethykosInstitutionId` de `sessionStorage`.
-- Las reglas de Realtime Database condicionan la lectura de `institutions/{institutionId}` a correo verificado y membresía activa, excepto para el UID administrador global.
-- La baja institucional no elimina la cuenta de Firebase Authentication ni las demás membresías del usuario.
-- La administración de docentes conserva la baja institucional y el registro de auditoría.
-- El panel administrativo y los registros de consola identifican esta versión como V4.11.
+Esta versión prepara una capa reutilizable de autorización para operaciones institucionales y documenta el modelo de datos académico multiinstitución.
 
-## Corrección V4.11.1
-- Se agrega lectura de la colección `institutions` exclusivamente para el UID administrador global. Esto permite que el panel consulte la lista completa sin abrir esa lectura a docentes ni estudiantes.
-- Se actualiza el mensaje de error que todavía mencionaba las reglas V4.8.
+- `GET /api/institutions/context`: consulta las instituciones activas asociadas al usuario autenticado.
+- `api/_lib/accessControl.js`: validación de token Firebase, correo verificado, membresía activa, rol e institución activa.
+- `MODELO-DATOS-Y-PERMISOS-V4.13.md`: arquitectura propuesta, matriz de permisos y plan de migración.
+- `tests/accessControl.test.js`: pruebas unitarias sin conexión a producción.
 
-## Publicación
-1. Publicar los archivos del proyecto.
-2. Publicar el archivo `database.rules.json` actualizado en Firebase Realtime Database. No omitir este paso: subir únicamente los archivos web no actualiza las reglas.
-3. Probar con dos sesiones independientes: administrador y docente (y repetir con estudiante si existe una cuenta de prueba).
-4. Dar de baja la membresía desde el panel administrativo y comprobar que el panel afectado informa la revocación y cierra la sesión.
-5. Comprobar que la cuenta de Authentication permanece y que otras membresías activas no se modifican.
+No publica reglas nuevas, no modifica registros de Firebase y no activa todavía datos académicos reales. Antes de habilitar esos datos se deben probar las reglas con Firebase Emulator Suite y usuarios de cada rol.
 
-## Estado de validación
-La revisión del código confirma la presencia de los listeners y las reglas descritas. La validación local de sintaxis no demuestra por sí sola el comportamiento del proyecto publicado. La prueba real debe realizarse en Firebase después de publicar también las reglas.
+Consulta `README-V4.12.md` para el historial de versiones y `AUDITORIA-V4.12.3.md` para los hallazgos previos.
 
-## Pendiente
-El correo personalizado de bienvenida y la configuración segura de contraseña se implementarán en una versión posterior mediante Vercel Functions, Firebase Admin SDK y Resend. No se incluyen claves ni secretos en este paquete.
+
+## V4.14.0 — Seguridad multiinstitución y gestión académica inicial
+
+### Emulador de Realtime Database
+- `npm install`
+- `npm run test:rules` inicia el emulador de Realtime Database y ejecuta pruebas aisladas.
+- `npm test` ejecuta las pruebas unitarias existentes.
+
+No se necesita conectar el emulador al proyecto de producción. Los datos de prueba se cargan con las reglas deshabilitadas dentro del entorno efímero de test.
+
+### Endpoints añadidos
+- `POST /api/students/create`: creación de estudiante en Firebase Authentication y creación de perfil, membresía e índice institucional desde servidor. Requiere administrador global o administrador institucional. Genera enlace de establecimiento de contraseña y, si Resend está configurado, envía correo.
+- `POST /api/academic/manage`: operaciones `createYear`, `createCourse`, `createGroup`, `assignTeacher` y `enrollStudent`. Requiere administrador institucional activo.
+
+### Importante antes de producción
+Las reglas nuevas protegen rutas académicas nuevas y no reemplazan aún el modelo histórico `institutions/{id}`. No almacenar datos sensibles de estudiantes en el subárbol histórico hasta migrar y verificar sus reglas. Ejecutar `npm run test:rules` antes de publicar `database.rules.json`.
+
+
+## V4.15.0 — Gestión académica institucional
+
+Panel institucional: `/admin-institucional`. El acceso requiere membresía activa `institution_admin` y correo verificado. El administrador global puede promover un docente activo desde Administración → Docentes → Vinculaciones institucionales.
+
+Para validar las reglas sin tocar producción, consulta `SEGURIDAD-Y-OPERACION-V4.15.md` y ejecuta `npm run test:rules`.

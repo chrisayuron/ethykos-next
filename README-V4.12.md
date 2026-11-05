@@ -49,3 +49,18 @@ La respuesta `sent: true` significa que Resend aceptó la solicitud; no garantiz
 - La vista previa usa datos demostrativos y la misma plantilla institucional de invitación, con botones visuales no funcionales claramente identificados.
 - Esta operación no crea usuarios, no genera enlaces de verificación/restablecimiento y no modifica Firebase Realtime Database ni Firebase Authentication.
 - Se define `APP_URL` en el endpoint real de invitaciones para evitar una referencia no declarada al construir enlaces de acción.
+
+
+## V4.12.4 — Auditoría: consistencia de invitaciones
+- Evita dejar cuentas de Firebase Authentication huérfanas si falla la generación de enlaces o el registro inicial en Realtime Database.
+- Registra el estado `email_failed` cuando Resend rechaza el envío después de crear correctamente la cuenta y la membresía.
+- Distingue fallos antes y después de persistir los datos; no informa falsamente que una cuenta quedó creada cuando la escritura inicial falló.
+- Valida caracteres no permitidos en el identificador de institución.
+
+## V4.13.0 — Base de autorización y contexto institucional
+
+- Se incorpora `api/_lib/accessControl.js` con validación de token, correo verificado, membresía activa, rol e institución activa.
+- Se incorpora `GET /api/institutions/context`, que devuelve únicamente las instituciones activas asociadas al usuario autenticado.
+- Se añade `MODELO-DATOS-Y-PERMISOS-V4.13.md` con el modelo académico propuesto, matriz de permisos y plan de migración.
+- Se añaden pruebas unitarias para autenticación, verificación de correo, membresías, roles y filtrado de instituciones.
+- No se modifican las reglas de Realtime Database ni se migran datos existentes. La activación de permisos académicos queda condicionada a pruebas con Firebase Emulator Suite.

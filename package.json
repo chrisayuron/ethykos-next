@@ -1,12 +1,22 @@
 {
   "name": "ethykos-next",
-  "version": "4.12.3",
+  "version": "4.15.1",
   "private": true,
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "firebase-admin": "^13.0.2",
-    "resend": "^4.1.2"
+    "firebase-admin": "14.5.0",
+    "resend": "6.37.0"
+  },
+  "scripts": {
+    "test": "node --test tests/accessControl.test.js tests/academicManage.test.js",
+    "emulators": "firebase emulators:start --project demo-ethykos-next --only database",
+    "test:rules": "firebase emulators:exec --project demo-ethykos-next --only database \"node --test tests/rules.test.js\""
+  },
+  "devDependencies": {
+    "firebase-tools": "14.7.0",
+    "@firebase/rules-unit-testing": "4.0.1",
+    "firebase": "11.0.0"
   }
 }

@@ -14,6 +14,10 @@
     ],
     "rewrites": [
       {
+        "source": "/admin-institucional",
+        "destination": "/admin-institucional.html"
+      },
+      {
         "source": "/admin",
         "destination": "/admin.html"
       },
@@ -34,5 +38,10 @@
         "destination": "/sesion2-precio-es.html"
       }
     ]
+  },
+  "emulators": {
+    "database": {
+      "port": 9000
+    }
   }
 }

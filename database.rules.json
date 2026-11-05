@@ -47,6 +47,66 @@
     "institutionMembers": {
       ".read": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
       ".write": "auth != null && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'"
+    },
+    "academicYears": {
+      "$institutionId": {
+        "$yearId": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin'))",
+          ".write": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin'))",
+          "courses": {
+            "$courseId": {
+              "profile": {
+                ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin')"
+              },
+              "groups": {
+                "$groupId": {
+                  "profile": {
+                    ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().child('teachers').child(auth.uid).child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && data.parent().child('enrollments').child(auth.uid).child('status').val() === 'active'))"
+                  },
+                  "teachers": {
+                    "$teacherUid": {
+                      ".read": "auth != null && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || auth.uid === $teacherUid || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin')"
+                    }
+                  },
+                  "enrollments": {
+                    "$studentUid": {
+                      ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || auth.uid === $studentUid || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().parent().child('teachers').child(auth.uid).child('status').val() === 'active') || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin')"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "institutionAssignments": {
+      "$institutionId": {
+        "$assignmentId": {
+          ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active')",
+          ".write": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin' || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.child('groupId').val() === newData.child('groupId').val() && root.child('academicYears').child($institutionId).child(data.child('academicYearId').val()).child('courses').child(data.child('courseId').val()).child('groups').child(data.child('groupId').val()).child('teachers').child(auth.uid).child('status').val() === 'active'))))"
+        }
+      }
+    },
+    "learningRecords": {
+      "$institutionId": {
+        "$studentUid": {
+          "$assignmentId": {
+            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (auth.uid === $studentUid && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student') || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && root.child('academicYears').child($institutionId).child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val()).child('courses').child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('courseId').val()).child('groups').child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('groupId').val()).child('teachers').child(auth.uid).child('status').val() === 'active'))",
+            ".write": false
+          }
+        }
+      }
+    },
+    "teacherFeedback": {
+      "$institutionId": {
+        "$studentUid": {
+          "$feedbackId": {
+            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || auth.uid === $studentUid || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher')",
+            ".write": false
+          }
+        }
+      }
     }
   }
 }
