@@ -12,6 +12,15 @@ async function requireVerifiedUser(req,app=defaultApp()){
   return decoded;
 }
 
+
+const GLOBAL_ADMIN_UID = '8mheoQqcekSQkpK5S8qTonUWKt83';
+
+async function requireGlobalAdmin(req, app=defaultApp()){
+  const decoded=await requireVerifiedUser(req,app);
+  if(decoded.uid!==GLOBAL_ADMIN_UID) throw httpError(403,'GLOBAL_ADMIN_REQUIRED','Esta operación requiere permisos de administrador global.');
+  return {user:decoded};
+}
+
 async function requireInstitutionRole(req,institutionId,allowedRoles,app=defaultApp()){
   const decoded=await requireVerifiedUser(req,app);
   const id=String(institutionId||'').trim();
@@ -39,4 +48,4 @@ async function listActiveInstitutionContexts(uid,app=defaultApp()){
   return contexts.filter(Boolean).sort((a,b)=>a.institution.name.localeCompare(b.institution.name,'es'));
 }
 
-module.exports={requireVerifiedUser,requireInstitutionRole,listActiveInstitutionContexts,httpError};
+module.exports={requireVerifiedUser,requireGlobalAdmin,requireInstitutionRole,listActiveInstitutionContexts,httpError};

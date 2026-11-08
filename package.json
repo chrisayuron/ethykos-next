@@ -1,6 +1,6 @@
 {
   "name": "ethykos-next",
-  "version": "4.15.2",
+  "version": "4.16.0",
   "private": true,
   "engines": {
     "node": "22.x"
@@ -10,7 +10,7 @@
     "resend": "6.37.0"
   },
   "scripts": {
-    "test": "node --test tests/accessControl.test.js tests/academicManage.test.js",
+    "test": "node --test tests/accessControl.test.js tests/academicManage.test.js tests/academicInstitutions.test.js",
     "emulators": "firebase emulators:start --project demo-ethykos-next --only database",
     "test:rules": "firebase emulators:exec --project demo-ethykos-next --only database \"node --test tests/rules.test.js\""
   },

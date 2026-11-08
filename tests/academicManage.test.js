@@ -6,6 +6,7 @@ function getAt(root,path){return path.split('/').filter(Boolean).reduce((v,k)=>v
 function setAt(root,path,value){const parts=path.split('/').filter(Boolean);let node=root;for(const p of parts.slice(0,-1))node=node[p]??(node[p]={});node[parts.at(-1)]=value;}
 function fixture(){
  const data={
+  institutions:{instA:{profile:{name:'Institución A',status:'active',academicYear:'2027'}}},
   memberships:{teacher1:{instA:{role:'teacher',status:'active'}},student1:{instA:{role:'student',status:'active'}}},
   institutionMembers:{instA:{teacher1:{uid:'teacher1',displayName:'Docente Uno',email:'docente@test.co',role:'teacher',status:'active'},student1:{uid:'student1',displayName:'Estudiante Uno',email:'estudiante@test.co',role:'student',status:'active'}}},
   academicYears:{instA:{2027:{courses:{}}}}
@@ -15,8 +16,8 @@ function fixture(){
   return {key:`audit${++pushId}`,once:async()=>({val:()=>getAt(data,path)||null}),push(){return {key:`audit${++pushId}`}},update:async updates=>{for(const [p,v] of Object.entries(updates))setAt(data,p,v);}};
  }};
  const app={database:()=>db};
- const requireRoleFn=async(_req,id,roles)=>{assert.equal(id,'instA');assert.deepEqual(roles,['institution_admin']);return {user:{uid:'admin1'},institution:{academicYear:'2027'}};};
- const handler=createHandler({getAdminFn:()=>app,requireRoleFn});
+ const requireGlobalAdminFn=async()=>({user:{uid:'8mheoQqcekSQkpK5S8qTonUWKt83'}});
+ const handler=createHandler({getAdminFn:()=>app,requireGlobalAdminFn});
  async function call(body,method='POST',query={}){let status=200,payload;const res={status(n){status=n;return this;},json(d){payload=d;return this;}};await handler({method,body,query},res);return {status,payload};}
  return {data,call};
 }

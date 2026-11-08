@@ -1,25 +1,31 @@
 const getAdmin=()=>require('../_lib/firebaseAdmin').getAdmin();
-const {requireInstitutionRole,httpError}=require('../_lib/accessControl');
+const {requireGlobalAdmin,httpError}=require('../_lib/accessControl');
 const SAFE=/^[A-Za-z0-9_-]{3,80}$/;
 const GROUP_SAFE=/^[A-Za-z0-9_-]{2,80}$/;
 
-function createHandler({getAdminFn=getAdmin,requireRoleFn=requireInstitutionRole}={}){
+function createHandler({getAdminFn=getAdmin,requireGlobalAdminFn=requireGlobalAdmin}={}){
  return async function(req,res){
   if(!['GET','POST'].includes(req.method))return res.status(405).json({code:'METHOD_NOT_ALLOWED'});
   try{
    const input=req.method==='GET'?req.query||{}:req.body||{};
    const {institutionId,academicYearId,action,data={}}=input;
-   const app=getAdminFn(),ctx=await requireRoleFn(req,institutionId,['institution_admin'],app);
-   const db=app.database(),id=String(institutionId),year=String(academicYearId||ctx.institution.academicYear||new Date().getFullYear());
+   const app=getAdminFn(),ctx=await requireGlobalAdminFn(req,app);
+   const db=app.database(),id=String(institutionId||'').trim();
+   if(!id||/[.#$\[\]/]/.test(id))throw httpError(400,'INVALID_INSTITUTION','Identificador de institución no válido.');
+   const institutionSnap=await db.ref(`institutions/${id}/profile`).once('value');
+   const institutionProfile=institutionSnap.val();
+   if(!institutionProfile||institutionProfile.status!=='active')throw httpError(404,'INSTITUTION_NOT_FOUND','La institución no existe o no está activa.');
+   const institution={id,name:institutionProfile.name||'Institución',academicYear:institutionProfile.academicYear||''};
+   const year=String(academicYearId||institution.academicYear||new Date().getFullYear());
    if(!SAFE.test(year))throw httpError(400,'INVALID_YEAR','Año académico no válido.');
    const root=`academicYears/${id}/${year}`;
    if(req.method==='GET'){
-    const [yearSnap,membersSnap]=await Promise.all([db.ref(root).once('value'),db.ref(`institutionMembers/${id}`).once('value')]);
-    const academic=yearSnap.val()||{},members=membersSnap.val()||{};
+    const [yearSnap,membersSnap]=await Promise.all([db.ref(root).once('value'),db.ref(`memberships`).once('value')]);
+    const academic=yearSnap.val()||{},allMemberships=membersSnap.val()||{}; const members={}; for(const [uid,byInstitution] of Object.entries(allMemberships)){if(byInstitution&&byInstitution[id])members[uid]=byInstitution[id];}
     const courses=Object.entries(academic.courses||{}).map(([courseId,c])=>({courseId,...(c.profile||{}),groups:Object.entries(c.groups||{}).map(([groupId,g])=>({groupId,...(g.profile||{}),teachers:Object.keys(g.teachers||{}).filter(uid=>g.teachers[uid]?.status==='active'),students:Object.keys(g.enrollments||{}).filter(uid=>g.enrollments[uid]?.status==='active')}))}));
     const teachers=Object.entries(members).filter(([,m])=>m&&m.role==='teacher'&&m.status==='active').map(([uid,m])=>({uid,displayName:m.displayName||m.name||m.email||uid,email:m.email||''}));
     const students=Object.entries(members).filter(([,m])=>m&&m.role==='student'&&m.status==='active').map(([uid,m])=>({uid,displayName:m.displayName||m.name||m.email||uid,email:m.email||''}));
-    return res.status(200).json({institution:ctx.institution,academicYearId:year,yearProfile:academic.profile||null,courses,teachers,students});
+    return res.status(200).json({institution,academicYearId:year,yearProfile:academic.profile||null,courses,teachers,students});
    }
    const now=Date.now(),updates={};
    if(action==='createYear'){
