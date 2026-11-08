@@ -1,0 +1,10 @@
+{
+  "rewrites": [
+    { "source": "/admin-institucional", "destination": "/admin-institucional.html" },
+    { "source": "/admin", "destination": "/admin.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/estudiante", "destination": "/estudiante.html" },
+    { "source": "/docente", "destination": "/docente.html" },
+    { "source": "/actividades/precio-es", "destination": "/sesion2-precio-es.html" }
+  ]
+}
