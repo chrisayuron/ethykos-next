@@ -1,12 +1,12 @@
 {
   "name": "ethykos-next",
-  "version": "4.15.1",
+  "version": "4.15.2",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": "22.x"
   },
   "dependencies": {
-    "firebase-admin": "14.5.0",
+    "firebase-admin": "13.5.0",
     "resend": "6.37.0"
   },
   "scripts": {
