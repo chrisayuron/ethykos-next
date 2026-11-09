@@ -1,0 +1,11 @@
+ÉTHYKOS NEXT — HOTFIX V4.15.2
+
+Cambios de esta entrega:
+- Fijado firebase-admin en 13.5.0 para salir de la cadena firebase-admin 14.5.0 -> jwks-rsa 4.1.0 -> jose 6.2.15 que produjo ERR_REQUIRE_ESM en Vercel.
+- Fijado Node.js 22.x mediante engines.node.
+- Se retiró temporalmente package-lock.json porque correspondía a firebase-admin 14.5.0. npm/Vercel debe generar una resolución nueva compatible con package.json.
+
+Importante:
+- Este hotfix es una corrección dirigida al fallo de arranque observado, pero no se pudo probar la instalación de dependencias en este entorno porque no hay acceso al registro npm.
+- No se modificaron reglas de Firebase, datos, roles ni autenticación de usuarios.
+- Después del despliegue, validar /api/health y /api/institutions/context en Vercel. /api/health solo confirma presencia de variables; no demuestra conexión efectiva.
