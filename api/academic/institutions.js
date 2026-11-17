@@ -15,7 +15,7 @@ function createHandler({getAdminFn=getAdmin,requireGlobalAdminFn=requireGlobalAd
         .map(x=>({institutionId:x.institutionId,institution:{
           name:x.profile.name||'Institución',
           shortName:x.profile.shortName||'',
-          academicYear:x.profile.academicYear||''
+          academicYear:x.profile.academicYear||'',activeAcademicYearId:Object.prototype.hasOwnProperty.call(x.profile,'activeAcademicYearId')?x.profile.activeAcademicYearId:(x.profile.academicYear||null)
         }}))
         .sort((a,b)=>a.institution.name.localeCompare(b.institution.name,'es'));
       return res.status(200).json({institutions});

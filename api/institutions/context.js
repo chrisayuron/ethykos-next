@@ -35,7 +35,7 @@ module.exports = async function (req, res) {
     });
 
   } catch (error) {
-    console.error('[Éthykos Next V4.15.1] institutions/context', {
+    console.error('[Éthykos Next V4.21.0] institutions/context', {
       stage,
       code: error?.code || null,
       message: error?.message || 'UNKNOWN',

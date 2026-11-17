@@ -85,3 +85,7 @@ out/
 # Documentación interna de desarrollo (solo si no forma parte
 # de la documentación oficial que deseas publicar)
 # docs-internal/
+
+.env
+.env.*
+!.env.example

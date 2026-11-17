@@ -51,28 +51,46 @@
     "academicYears": {
       "$institutionId": {
         "$yearId": {
-          ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin'))",
-          ".write": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin'))",
+          ".read": "auth != null && auth.token.email_verified === true && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
+          ".write": "auth != null && auth.token.email_verified === true && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
           "courses": {
             "$courseId": {
               "profile": {
-                ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin')"
+                ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83')"
               },
               "groups": {
                 "$groupId": {
                   "profile": {
-                    ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().child('teachers').child(auth.uid).child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && data.parent().child('enrollments').child(auth.uid).child('status').val() === 'active'))"
+                    ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && root.child('academicYears').child($institutionId).child($yearId).child('profile').child('status').val() === 'active' && ((root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().child('teachers').child(auth.uid).child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && data.parent().child('enrollments').child(auth.uid).child('status').val() === 'active'))))"
                   },
                   "teachers": {
                     "$teacherUid": {
-                      ".read": "auth != null && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || auth.uid === $teacherUid || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin')"
+                      ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && root.child('academicYears').child($institutionId).child($yearId).child('profile').child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && auth.uid === $teacherUid && data.child('status').val() === 'active'))"
                     }
                   },
                   "enrollments": {
                     "$studentUid": {
-                      ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || auth.uid === $studentUid || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().parent().child('teachers').child(auth.uid).child('status').val() === 'active') || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin')"
+                      ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && root.child('academicYears').child($institutionId).child($yearId).child('profile').child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && ((root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && auth.uid === $studentUid && data.child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().parent().child('teachers').child(auth.uid).child('status').val() === 'active'))))"
                     }
                   }
+                }
+              }
+            }
+          },
+          "profile": {
+            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student') && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && data.child('status').val() === 'active'))"
+          },
+          "groups": {
+            "$groupId": {
+              "profile": {
+                ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && root.child('academicYears').child($institutionId).child($yearId).child('profile').child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && ((root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().child('teacher').child('uid').val() === auth.uid && data.parent().child('teacher').child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && data.parent().child('enrollments').child(auth.uid).child('status').val() === 'active'))))"
+              },
+              "teacher": {
+                ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && root.child('academicYears').child($institutionId).child($yearId).child('profile').child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && auth.uid === data.child('uid').val() && data.child('status').val() === 'active'))"
+              },
+              "enrollments": {
+                "$studentUid": {
+                  ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && root.child('academicYears').child($institutionId).child($yearId).child('profile').child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && ((root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && auth.uid === $studentUid && data.child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.parent().parent().child('teacher').child('uid').val() === auth.uid && data.parent().parent().child('teacher').child('status').val() === 'active'))))"
                 }
               }
             }
@@ -83,8 +101,8 @@
     "institutionAssignments": {
       "$institutionId": {
         "$assignmentId": {
-          ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active')",
-          ".write": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'institution_admin' || (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.child('groupId').val() === newData.child('groupId').val() && root.child('academicYears').child($institutionId).child(data.child('academicYearId').val()).child('courses').child(data.child('courseId').val()).child('groups').child(data.child('groupId').val()).child('teachers').child(auth.uid).child('status').val() === 'active'))))"
+          ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === data.child('academicYearId').val() && root.child('academicYears').child($institutionId).child(data.child('academicYearId').val()).child('profile').child('status').val() === 'active'))",
+          ".write": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === data.child('academicYearId').val() && root.child('academicYears').child($institutionId).child(data.child('academicYearId').val()).child('profile').child('status').val() === 'active' && ((root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && data.child('groupId').val() === newData.child('groupId').val() && root.child('academicYears').child($institutionId).child(data.child('academicYearId').val()).child('courses').child(data.child('courseId').val()).child('groups').child(data.child('groupId').val()).child('teachers').child(auth.uid).child('status').val() === 'active'))))"
         }
       }
     },
@@ -92,7 +110,7 @@
       "$institutionId": {
         "$studentUid": {
           "$assignmentId": {
-            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (auth.uid === $studentUid && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student') || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && root.child('academicYears').child($institutionId).child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val()).child('courses').child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('courseId').val()).child('groups').child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('groupId').val()).child('teachers').child(auth.uid).child('status').val() === 'active'))",
+            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (auth.uid === $studentUid && root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student' && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val() && root.child('academicYears').child($institutionId).child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val()).child('profile').child('status').val() === 'active') || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val() && root.child('academicYears').child($institutionId).child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val()).child('profile').child('status').val() === 'active' && root.child('academicYears').child($institutionId).child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('academicYearId').val()).child('courses').child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('courseId').val()).child('groups').child(root.child('institutionAssignments').child($institutionId).child($assignmentId).child('groupId').val()).child('teachers').child(auth.uid).child('status').val() === 'active'))",
             ".write": false
           }
         }
@@ -102,7 +120,7 @@
       "$institutionId": {
         "$studentUid": {
           "$feedbackId": {
-            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || auth.uid === $studentUid || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher')",
+            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() != null && root.child('academicYears').child($institutionId).child(root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val()).child('profile').child('status').val() === 'active' && (auth.uid === $studentUid || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher'))))",
             ".write": false
           }
         }

@@ -21,14 +21,14 @@ module.exports=async function(req,res){
       html:testEmail()
     });
     if(sent.error){
-      console.error('[V4.12.2 email/test] Resend rechazó el envío:',sent.error.name||'RESEND_ERROR',sent.error.message||'');
+      console.error('[V4.21.0 email/test] Resend rechazó el envío:',sent.error.name||'RESEND_ERROR',sent.error.message||'');
       const restricted=/testing|only send|verify a domain/i.test(sent.error.message||'');
       return res.status(restricted?403:502).json({code:restricted?'RESEND_TEST_RECIPIENT_LIMIT':'RESEND_SEND_FAILED',message:restricted?'Resend no autorizó este destinatario en el modo de prueba.':'Resend no pudo aceptar el mensaje de prueba.'});
     }
-    console.info('[V4.12.2 email/test] Solicitud aceptada por Resend. ID:',sent.data&&sent.data.id||'sin-id');
+    console.info('[V4.21.0 email/test] Solicitud aceptada por Resend. ID:',sent.data&&sent.data.id||'sin-id');
     return res.status(200).json({sent:true,to:TEST_RECIPIENT,id:sent.data&&sent.data.id||null,message:'Resend aceptó el mensaje de prueba.'});
   }catch(err){
-    console.error('[V4.12.2 email/test] Error:',err.code||err.message||'UNKNOWN');
+    console.error('[V4.21.0 email/test] Error:',err.code||err.message||'UNKNOWN');
     if(err.status) return res.status(err.status).json({code:err.status===401?'UNAUTHORIZED':'FORBIDDEN',message:err.status===401?'Inicia sesión nuevamente.':'No tienes permisos para realizar esta acción.'});
     return res.status(500).json({code:'EMAIL_TEST_FAILED',message:'No fue posible completar la prueba de correo.'});
   }

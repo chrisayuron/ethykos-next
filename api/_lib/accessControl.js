@@ -21,6 +21,15 @@ async function requireGlobalAdmin(req, app=defaultApp()){
   return {user:decoded};
 }
 
+async function institutionHasOpenYear(institutionId,institution,app){
+  const yearId=String(institution.activeAcademicYearId||institution.academicYear||'').trim();
+  if(!yearId)return false;
+  const snap=await app.database().ref(`academicYears/${institutionId}/${yearId}/profile`).once('value');
+  const profile=snap.val();
+  // Compatibilidad: años antiguos sin perfil explícito siguen operativos hasta que se migren.
+  return !profile || profile.status==='active';
+}
+
 async function requireInstitutionRole(req,institutionId,allowedRoles,app=defaultApp()){
   const decoded=await requireVerifiedUser(req,app);
   const id=String(institutionId||'').trim();
@@ -32,20 +41,48 @@ async function requireInstitutionRole(req,institutionId,allowedRoles,app=default
   const institutionSnap=await app.database().ref(`institutions/${id}/profile`).once('value');
   const institution=institutionSnap.val();
   if(!institution||institution.status!=='active') throw httpError(403,'INSTITUTION_INACTIVE','La institución no está disponible.');
+  if(!await institutionHasOpenYear(id,institution,app)) throw httpError(403,'ACADEMIC_YEAR_CLOSED','La institución no tiene un año lectivo activo. El acceso académico está cerrado.');
   return {user:decoded,membership,institution:{id,name:institution.name||'Institución',shortName:institution.shortName||'',slug:institution.slug||'',city:institution.city||'',department:institution.department||'',academicYear:institution.academicYear||''}};
 }
 
 async function listActiveInstitutionContexts(uid,app=defaultApp()){
+  if(uid===GLOBAL_ADMIN_UID){
+    const institutionsSnap=await app.database().ref('institutions').once('value');
+    const institutions=institutionsSnap.val()||{};
+    return Object.entries(institutions)
+      .filter(([,item])=>item&&item.profile&&item.profile.status==='active')
+      .map(([institutionId,item])=>({
+        institutionId,
+        role:'global_admin',
+        membershipStatus:'active',
+        institution:{name:item.profile.name||'Institución',shortName:item.profile.shortName||'',slug:item.profile.slug||'',city:item.profile.city||'',department:item.profile.department||'',academicYear:item.profile.academicYear||''}
+      }))
+      .sort((a,b)=>a.institution.name.localeCompare(b.institution.name,'es'));
+  }
   const membershipsSnap=await app.database().ref(`memberships/${uid}`).once('value');
   const memberships=membershipsSnap.val()||{};
-  const active=Object.entries(memberships).filter(([,m])=>m&&m.status==='active'&&['institution_admin','teacher','student'].includes(m.role));
+  const active=Object.entries(memberships).filter(([,m])=>m&&m.status==='active'&&['teacher','student'].includes(m.role));
   const contexts=await Promise.all(active.map(async([institutionId,membership])=>{
     const snap=await app.database().ref(`institutions/${institutionId}/profile`).once('value');
     const p=snap.val();
     if(!p||p.status!=='active') return null;
-    return {institutionId,role:membership.role,membershipStatus:membership.status,institution:{name:p.name||'Institución',shortName:p.shortName||'',slug:p.slug||'',city:p.city||'',department:p.department||'',academicYear:p.academicYear||''}};
+    if(!await institutionHasOpenYear(institutionId,p,app)) return null;
+    const yearId=String(p.activeAcademicYearId||p.academicYear||'').trim();
+    if(!yearId) return null;
+    const yearData=(await app.database().ref(`academicYears/${institutionId}/${yearId}`).once('value')).val()||{};
+    const groups=yearData.groups||{};
+    let assigned=false;
+    if(membership.role==='teacher'){
+      assigned=Object.values(groups).some(g=>g&&g.profile?.status==='active'&&g.teacher?.uid===uid&&g.teacher?.status==='active');
+      if(!assigned) for(const course of Object.values(yearData.courses||{})) for(const group of Object.values(course?.groups||{})) if(group?.profile?.status==='active'&&group.teachers?.[uid]?.status==='active') assigned=true;
+    }else{
+      assigned=Object.values(groups).some(g=>g&&g.profile?.status==='active'&&g.enrollments?.[uid]?.status==='active');
+      if(!assigned) for(const course of Object.values(yearData.courses||{})) for(const group of Object.values(course?.groups||{})) if(group?.profile?.status==='active'&&group.enrollments?.[uid]?.status==='active') assigned=true;
+    }
+    if(!assigned) return null;
+    return {institutionId,role:membership.role,membershipStatus:membership.status,institution:{name:p.name||'Institución',shortName:p.shortName||'',slug:p.slug||'',city:p.city||'',department:p.department||'',academicYear:yearId}};
   }));
   return contexts.filter(Boolean).sort((a,b)=>a.institution.name.localeCompare(b.institution.name,'es'));
 }
 
-module.exports={requireVerifiedUser,requireGlobalAdmin,requireInstitutionRole,listActiveInstitutionContexts,httpError};
+module.exports={requireVerifiedUser,requireGlobalAdmin,requireInstitutionRole,listActiveInstitutionContexts,institutionHasOpenYear,httpError};
