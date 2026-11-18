@@ -36,3 +36,19 @@ test('GET devuelve años, grupos, docente y estudiantes',async()=>{
  const{data,call}=fixture();data.academicYears.instA[2027].groups['6A']={profile:{name:'Sexto A',gradeLevel:'6',status:'active'},teacher:{uid:'teacher1',status:'active'},enrollments:{student1:{status:'active'}}};const r=await call({},'GET',{institutionId:'instA',academicYearId:'2027'});assert.equal(r.status,200);assert.equal(r.payload.groups[0].teacherUid,'teacher1');assert.deepEqual(r.payload.groups[0].students,['student1']);assert.equal(r.payload.teachers.length,2);assert.equal(r.payload.students.length,2);
 });
 test('rechaza fechas invertidas',async()=>{const{call}=fixture();const r=await call({institutionId:'instA',academicYearId:'2028',action:'createYear',data:{name:'2028',startsAt:'2028-12-01',endsAt:'2028-01-01'}});assert.equal(r.status,400);assert.equal(r.payload.code,'INVALID_DATE_RANGE');});
+
+test('rechaza identificadores que no corresponden a grupos de 6.º a 11.º',async()=>{
+ const{call}=fixture();
+ for(const groupId of ['6','6-A','5A','12A','6a','CURSO6']) {
+  const r=await call({institutionId:'instA',academicYearId:'2027',action:'createGroup',data:{groupId,name:'Grupo de prueba'}});
+  assert.equal(r.status,400,groupId);
+  assert.equal(r.payload.code,'INVALID_GROUP',groupId);
+ }
+});
+test('ignora cualquier estructura antigua courses > groups',async()=>{
+ const{data,call}=fixture();
+ data.academicYears.instA[2027].courses={grade6:{groups:{'6A':{profile:{name:'Grupo legado',status:'active'},teachers:{teacher1:{status:'active'}},enrollments:{student1:{status:'active'}}}}}};
+ const r=await call({},'GET',{institutionId:'instA',academicYearId:'2027'});
+ assert.equal(r.status,200);
+ assert.deepEqual(r.payload.groups,[]);
+});
