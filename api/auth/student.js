@@ -1,6 +1,6 @@
-const getAdmin = () => require('../_lib/firebaseAdmin').getAdmin();
-const { verifyPin, documentKey } = require('../_lib/studentPin');
-const { httpError } = require('../_lib/accessControl');
+const getAdmin = () => require('../../lib/api/firebaseAdmin').getAdmin();
+const { verifyPin, documentKey } = require('../../lib/api/studentPin');
+const { httpError } = require('../../lib/api/accessControl');
 const LOCK_ATTEMPTS = 5;
 const LOCK_MS = 5 * 60 * 1000;
 const WINDOW_MS = 15 * 60 * 1000;

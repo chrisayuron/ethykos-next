@@ -1,6 +1,6 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {requireVerifiedUser,requireGlobalAdmin,requireInstitutionRole,listActiveInstitutionContexts}=require('../api/_lib/accessControl');
+const {requireVerifiedUser,requireGlobalAdmin,requireInstitutionRole,listActiveInstitutionContexts}=require('../lib/api/accessControl');
 
 function fakeApp({token={uid:'teacher-1',email:'teacher@example.com',email_verified:true},data={}}={}){
   return {

@@ -2,9 +2,9 @@
 const {
   requireVerifiedUser,
   listActiveInstitutionContexts
-} = require('../_lib/accessControl');
+} = require('../../lib/api/accessControl');
 
-const { getAdmin } = require('../_lib/firebaseAdmin');
+const { getAdmin } = require('../../lib/api/firebaseAdmin');
 
 module.exports = async function (req, res) {
   if (req.method !== 'GET') {

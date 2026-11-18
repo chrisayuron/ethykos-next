@@ -1,7 +1,7 @@
 const crypto = require('node:crypto');
-const getAdmin = () => require('../_lib/firebaseAdmin').getAdmin();
-const { requireGlobalAdmin, httpError } = require('../_lib/accessControl');
-const { hashPin, encryptPin, generatePin, documentKey } = require('../_lib/studentPin');
+const getAdmin = () => require('../../lib/api/firebaseAdmin').getAdmin();
+const { requireGlobalAdmin, httpError } = require('../../lib/api/accessControl');
+const { hashPin, encryptPin, generatePin, documentKey } = require('../../lib/api/studentPin');
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SAFE = /^[A-Za-z0-9_-]{2,80}$/;
 function createHandler({ getAdminFn = getAdmin, requireGlobalAdminFn = requireGlobalAdmin } = {}) {

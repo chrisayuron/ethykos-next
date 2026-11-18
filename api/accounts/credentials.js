@@ -1,6 +1,6 @@
-const getAdmin = () => require('../_lib/firebaseAdmin').getAdmin();
-const { requireGlobalAdmin, httpError } = require('../_lib/accessControl');
-const { decryptPin, encryptionKey } = require('../_lib/studentPin');
+const getAdmin = () => require('../../lib/api/firebaseAdmin').getAdmin();
+const { requireGlobalAdmin, httpError } = require('../../lib/api/accessControl');
+const { decryptPin, encryptionKey } = require('../../lib/api/studentPin');
 
 function createHandler({ getAdminFn = getAdmin, requireGlobalAdminFn = requireGlobalAdmin } = {}) {
   return async function (req, res) {

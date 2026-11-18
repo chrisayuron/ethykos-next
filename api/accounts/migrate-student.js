@@ -1,6 +1,6 @@
-const getAdmin = () => require('../_lib/firebaseAdmin').getAdmin();
-const { requireGlobalAdmin, httpError } = require('../_lib/accessControl');
-const { hashPin, encryptPin, generatePin, documentKey } = require('../_lib/studentPin');
+const getAdmin = () => require('../../lib/api/firebaseAdmin').getAdmin();
+const { requireGlobalAdmin, httpError } = require('../../lib/api/accessControl');
+const { hashPin, encryptPin, generatePin, documentKey } = require('../../lib/api/studentPin');
 function createHandler({ getAdminFn = getAdmin, requireGlobalAdminFn = requireGlobalAdmin } = {}) {
   return async function (req, res) {
     if (req.method !== 'POST') return res.status(405).json({ code: 'METHOD_NOT_ALLOWED' });

@@ -1,6 +1,22 @@
 {
   "rewrites": [
     {
+      "source": "/api/email/test",
+      "destination": "/api/email?action=test"
+    },
+    {
+      "source": "/api/email/invitation-preview",
+      "destination": "/api/email?action=invitation-preview"
+    },
+    {
+      "source": "/api/students/create",
+      "destination": "/api/legacy?action=students-create"
+    },
+    {
+      "source": "/api/invitations/create",
+      "destination": "/api/legacy?action=invitations-create"
+    },
+    {
       "source": "/admin-institucional",
       "destination": "/admin-institucional.html"
     },

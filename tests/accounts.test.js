@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 process.env.STUDENT_PIN_ENCRYPTION_KEY = Buffer.alloc(32, 7).toString('base64');
 const createAccountHandler = require('../api/accounts/create').createHandler;
 const createStudentLoginHandler = require('../api/auth/student').createHandler;
-const { hashPin, verifyPin, encryptPin, decryptPin, generatePin, documentKey } = require('../api/_lib/studentPin');
+const { hashPin, verifyPin, encryptPin, decryptPin, generatePin, documentKey } = require('../lib/api/studentPin');
 function pathGet(root, path) { return path.split('/').filter(Boolean).reduce((v, k) => v == null ? undefined : v[k], root); }
 function pathSet(root, path, value) { const parts = path.split('/').filter(Boolean); let node = root; for (const key of parts.slice(0, -1)) node = node[key] ||= {}; if (parts.length) node[parts.at(-1)] = value; }
 function makeDb(data) {

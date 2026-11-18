@@ -1,5 +1,5 @@
-const getAdmin=()=>require('../_lib/firebaseAdmin').getAdmin();
-const {requireGlobalAdmin,httpError}=require('../_lib/accessControl');
+const getAdmin=()=>require('../../lib/api/firebaseAdmin').getAdmin();
+const {requireGlobalAdmin,httpError}=require('../../lib/api/accessControl');
 const SAFE=/^[A-Za-z0-9_-]{2,80}$/;
 const GLOBAL_UID='8mheoQqcekSQkpK5S8qTonUWKt83';
 
