@@ -1,6 +1,7 @@
 const getAdmin=()=>require('../../lib/api/firebaseAdmin').getAdmin();
 const {requireGlobalAdmin,httpError}=require('../../lib/api/accessControl');
 const SAFE=/^[A-Za-z0-9_-]{2,80}$/;
+const GROUP_ID=/^(6|7|8|9|10|11)[A-Z]$/;
 const GLOBAL_UID='8mheoQqcekSQkpK5S8qTonUWKt83';
 
 function createHandler({getAdminFn=getAdmin,requireGlobalAdminFn=requireGlobalAdmin}={}){
@@ -28,8 +29,6 @@ function createHandler({getAdminFn=getAdmin,requireGlobalAdminFn=requireGlobalAd
     const yearsRaw=yearsSnap.val()||{},academic=yearSnap.val()||{},all=membersSnap.val()||{},index=indexSnap.val()||{},members={};
     for(const [uid,byInst] of Object.entries(all))if(byInst&&byInst[id]?.status==='active')members[uid]={...(index[uid]||{}),...byInst[id]};
     const groups=Object.entries(academic.groups||{}).map(([groupId,g])=>({groupId,...(g.profile||{}),teacherUid:g.teacher?.uid||null,students:Object.keys(g.enrollments||{}).filter(uid=>g.enrollments[uid]?.status==='active')}));
-    // Compatibilidad temporal de lectura para grupos guardados en la estructura anterior curso > grupo.
-    for(const [courseId,c] of Object.entries(academic.courses||{}))for(const [groupId,g] of Object.entries(c.groups||{}))groups.push({groupId,courseId,...(g.profile||{}),teacherUid:Object.keys(g.teachers||{}).find(uid=>g.teachers[uid]?.status==='active')||null,students:Object.keys(g.enrollments||{}).filter(uid=>g.enrollments[uid]?.status==='active'),legacy:true});
     const teachers=Object.entries(members).filter(([,m])=>m.role==='teacher').map(([uid,m])=>({uid,displayName:m.displayName||m.name||m.email||uid,email:m.email||'',documentId:m.documentId||''}));
     const students=Object.entries(members).filter(([,m])=>m.role==='student').map(([uid,m])=>({uid,displayName:m.displayName||m.name||m.documentId||uid,email:m.email||'',documentId:m.documentId||''}));
     const years=Object.entries(yearsRaw).map(([yearId,y])=>({yearId,name:y.profile?.name||yearId,status:y.profile?.status||'legacy',startsAt:y.profile?.startsAt||null,endsAt:y.profile?.endsAt||null})).sort((a,b)=>b.yearId.localeCompare(a.yearId));
@@ -59,20 +58,20 @@ function createHandler({getAdminFn=getAdmin,requireGlobalAdminFn=requireGlobalAd
    }else{
     if(!yp||yp.status!=='active'||String(ip.activeAcademicYearId||ip.academicYear||'')!==year)throw httpError(409,'YEAR_NOT_ACTIVE','La operación requiere un año lectivo activo.');
     if(action==='createGroup'){
-     const groupId=String(data.groupId||'').trim().toUpperCase(),name=String(data.name||groupId).trim(),gradeLevel=String(data.gradeLevel||'').trim();
-     if(!SAFE.test(groupId)||!name||name.length>100)throw httpError(400,'INVALID_GROUP','Identificador y nombre del grupo son obligatorios.');
+     const groupId=String(data.groupId||'').trim().toUpperCase(),name=String(data.name||groupId).trim(),gradeLevel=groupId.match(/^(6|7|8|9|10|11)/)?.[1]||'';
+     if(!GROUP_ID.test(groupId)||!name||name.length>100)throw httpError(400,'INVALID_GROUP','Usa un identificador de grupo válido: 6A, 6B, 7A… 11B.');
      const existing=(await db.ref(`${root}/groups/${groupId}`).once('value')).val();if(existing)throw httpError(409,'GROUP_ALREADY_EXISTS','Ese grupo ya existe en el año lectivo.');
      updates[`${root}/groups/${groupId}/profile`]={name,gradeLevel,status:'active',createdAt:now,createdBy:ctx.user.uid};
     }else if(action==='assignTeacher'){
      const groupId=String(data.groupId||'').trim().toUpperCase(),teacherUid=String(data.teacherUid||'').trim();
-     if(!SAFE.test(groupId)||!teacherUid)throw httpError(400,'INVALID_ASSIGNMENT','Selecciona un grupo y un docente.');
+     if(!GROUP_ID.test(groupId)||!teacherUid)throw httpError(400,'INVALID_ASSIGNMENT','Selecciona un grupo y un docente.');
      const [group,m]=await Promise.all([db.ref(`${root}/groups/${groupId}/profile`).once('value'),db.ref(`memberships/${teacherUid}/${id}`).once('value')]).then(a=>a.map(x=>x.val()));
      if(!group||group.status!=='active')throw httpError(404,'GROUP_NOT_FOUND','El grupo no existe o está inactivo.');
      if(!m||m.status!=='active'||m.role!=='teacher')throw httpError(400,'TEACHER_NOT_ACTIVE','El docente no tiene una cuenta activa en esta institución.');
      updates[`${root}/groups/${groupId}/teacher`]={uid:teacherUid,status:'active',assignedAt:now,assignedBy:ctx.user.uid};
     }else if(action==='enrollStudent'){
      const groupId=String(data.groupId||'').trim().toUpperCase(),studentUid=String(data.studentUid||'').trim();
-     if(!SAFE.test(groupId)||!studentUid)throw httpError(400,'INVALID_ENROLLMENT','Selecciona un grupo y un estudiante.');
+     if(!GROUP_ID.test(groupId)||!studentUid)throw httpError(400,'INVALID_ENROLLMENT','Selecciona un grupo y un estudiante.');
      const [group,m,teacher]=await Promise.all([db.ref(`${root}/groups/${groupId}/profile`).once('value'),db.ref(`memberships/${studentUid}/${id}`).once('value'),db.ref(`${root}/groups/${groupId}/teacher`).once('value')]).then(a=>a.map(x=>x.val()));
      if(!group||group.status!=='active')throw httpError(404,'GROUP_NOT_FOUND','El grupo no existe o está inactivo.');
      if(!teacher||teacher.status!=='active')throw httpError(409,'TEACHER_REQUIRED','Asigna primero un docente de Ética al grupo.');
