@@ -1,6 +1,6 @@
-const getAdmin = () => require('../_lib/firebaseAdmin').getAdmin();
-const { requireGlobalAdmin, httpError } = require('../_lib/accessControl');
-const { hashPin, encryptPin, generatePin } = require('../_lib/studentPin');
+const getAdmin = () => require('../../lib/api/firebaseAdmin').getAdmin();
+const { requireGlobalAdmin, httpError } = require('../../lib/api/accessControl');
+const { hashPin, encryptPin, generatePin } = require('../../lib/api/studentPin');
 function createHandler({ getAdminFn = getAdmin, requireGlobalAdminFn = requireGlobalAdmin } = {}) {
   return async function (req, res) {
     if (req.method !== 'POST') return res.status(405).json({ code: 'METHOD_NOT_ALLOWED' });
@@ -16,7 +16,7 @@ function createHandler({ getAdminFn = getAdmin, requireGlobalAdminFn = requireGl
       const updates = {
         [`studentSecrets/${uid}/pin`]: hashPin(pin),
         [`studentSecrets/${uid}/pinEncrypted`]: encryptPin(pin),
-        [`security/studentLoginAttempts/${require('../_lib/studentPin').documentKey(profile.documentId)}`]: null,
+        [`security/studentLoginAttempts/${require('../../lib/api/studentPin').documentKey(profile.documentId)}`]: null,
         [`auditLogs/${db.ref('auditLogs').push().key}`]: { actorUid: actor.uid, action: 'account.student.pin_reset', institutionId: id, createdAt: Date.now(), details: { studentUid: uid } }
       };
       await db.ref().update(updates);
