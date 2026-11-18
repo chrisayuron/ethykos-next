@@ -14,11 +14,13 @@ module.exports=async function(req,res){
   const app=getAdmin(),{user}=await requireGlobalAdmin(req,app);
   if(user.uid!==ADMIN)return res.status(403).json({code:'GLOBAL_ADMIN_REQUIRED'});
   const db=app.database(),snap=await db.ref('/').once('value'),root=snap.val()||{};
-  if(!root.users?.[ADMIN])return res.status(409).json({code:'GLOBAL_ADMIN_PROFILE_MISSING',message:'No se encontró el perfil del administrador global.'});
+  const adminProfilePresent=Boolean(root.users?.[ADMIN]);
+  // La identidad y el rol ya se validaron con Firebase Authentication y el UID global.
+  // El perfil RTDB puede no existir; su ausencia no debe bloquear diagnóstico ni respaldo.
   const ids=Object.keys(root.users||{}).filter(uid=>uid!==ADMIN);
   if(action==='firebase-reset-preview'){
    const counts={};for(const k of ROOTS)counts[k]=root[k]?Object.keys(root[k]).length:0;
-   return res.status(200).json({ok:true,projectId:process.env.FIREBASE_PROJECT_ID,globalAdminPreserved:true,authAccountsToDelete:ids.length,authUids:ids,rootsToClear:ROOTS,counts,platformPreserved:Object.hasOwn(root,'platform'),nextStep:'Descarga respaldo completo antes de confirmar.'});
+   return res.status(200).json({ok:true,projectId:process.env.FIREBASE_PROJECT_ID,globalAdminPreserved:true,adminProfilePresent,authAccountsToDelete:ids.length,authUids:ids,rootsToClear:ROOTS,counts,platformPreserved:Object.hasOwn(root,'platform'),nextStep:'Descarga respaldo completo antes de confirmar.'});
   }
   if(action==='firebase-reset-export'){
    res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Content-Disposition','attachment; filename="ethykos-firebase-backup.json"');res.setHeader('Cache-Control','no-store');
