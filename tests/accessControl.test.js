@@ -13,8 +13,15 @@ const request={headers:{authorization:'Bearer valid-token'}};
 test('rechaza solicitudes sin token',async()=>{
   await assert.rejects(()=>requireVerifiedUser({headers:{}},fakeApp()),e=>e.status===401&&e.code==='UNAUTHORIZED');
 });
-test('exige correo verificado',async()=>{
+test('exige correo verificado para cuentas no estudiantiles',async()=>{
   await assert.rejects(()=>requireVerifiedUser(request,fakeApp({token:{uid:'x',email_verified:false}})),e=>e.status===403&&e.code==='EMAIL_NOT_VERIFIED');
+});
+test('acepta sesión estudiantil emitida mediante PIN aunque no tenga correo verificado',async()=>{
+  const result=await requireVerifiedUser(request,fakeApp({token:{uid:'student-1',role:'student',institutionId:'schoolA',email_verified:false}}));
+  assert.equal(result.role,'student');
+});
+test('rechaza token sin correo verificado que no tenga claims de estudiante completos',async()=>{
+  await assert.rejects(()=>requireVerifiedUser(request,fakeApp({token:{uid:'x',role:'student',email_verified:false}})),e=>e.status===403&&e.code==='EMAIL_NOT_VERIFIED');
 });
 test('autoriza rol activo en institución activa',async()=>{
   const app=fakeApp({data:{memberships:{'teacher-1':{schoolA:{role:'teacher',status:'active'}}},institutions:{schoolA:{profile:{name:'Colegio Demo',status:'active',academicYear:'2027'}}},academicYears:{schoolA:{2027:{profile:{status:'active'}}}}}});
@@ -59,4 +66,12 @@ test('bloquea contexto institucional cuando el año lectivo está cerrado',async
 test('no habilita docentes ni estudiantes sin asignación en un grupo del año activo',async()=>{
  const app=fakeApp({token:{uid:'student-1',email:'student@example.invalid',email_verified:true},data:{memberships:{'student-1':{schoolA:{role:'student',status:'active'}}},institutions:{schoolA:{profile:{name:'Colegio A',status:'active',academicYear:'2027'}}},academicYears:{schoolA:{2027:{profile:{status:'active'},groups:{'6A':{profile:{status:'active'},enrollments:{}}}}}}}});
  const result=await listActiveInstitutionContexts('student-1',app);assert.equal(result.length,0);
+});
+
+test('bloquea acceso cuando la fecha final del año lectivo ya pasó en Colombia',async()=>{
+ const yesterday=new Date(Date.now()-86400000);
+ const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Bogota',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(yesterday);
+ const end=parts.find(p=>p.type==='year').value+'-'+parts.find(p=>p.type==='month').value+'-'+parts.find(p=>p.type==='day').value;
+ const app=fakeApp({data:{memberships:{'teacher-1':{schoolA:{role:'teacher',status:'active'}}},institutions:{schoolA:{profile:{name:'Colegio A',status:'active',academicYear:'2027'}}},academicYears:{schoolA:{2027:{profile:{status:'active',startsAt:'2020-01-01',endsAt:end},groups:{'6A':{profile:{status:'active'},teacher:{uid:'teacher-1',status:'active'}}}}}}}});
+ assert.equal((await listActiveInstitutionContexts('teacher-1',app)).length,0);
 });

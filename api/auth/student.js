@@ -1,6 +1,6 @@
 const getAdmin = () => require('../../lib/api/firebaseAdmin').getAdmin();
 const { verifyPin, documentKey } = require('../../lib/api/studentPin');
-const { httpError } = require('../../lib/api/accessControl');
+const { httpError, institutionHasOpenYear } = require('../../lib/api/accessControl');
 const LOCK_ATTEMPTS = 5;
 const LOCK_MS = 5 * 60 * 1000;
 const WINDOW_MS = 15 * 60 * 1000;
@@ -68,7 +68,7 @@ function createHandler({ getAdminFn = getAdmin, now = () => Date.now() } = {}) {
       const yearId = String(institution.activeAcademicYearId || institution.academicYear || '');
       if (!yearId) throw httpError(403, 'ACADEMIC_YEAR_CLOSED', 'La institución no tiene un año lectivo activo.');
       const year = (await db.ref(`academicYears/${index.institutionId}/${yearId}/profile`).once('value')).val();
-      if (!year || year.status !== 'active') throw httpError(403, 'ACADEMIC_YEAR_CLOSED', 'El año lectivo está cerrado.');
+      if (!year || year.status !== 'active' || !(await institutionHasOpenYear(index.institutionId, institution, app))) throw httpError(403, 'ACADEMIC_YEAR_CLOSED', 'El año lectivo está cerrado o fuera de sus fechas de vigencia.');
       const groups = (await db.ref(`academicYears/${index.institutionId}/${yearId}/groups`).once('value')).val() || {};
       const enrolled = Object.values(groups).some(group => group?.enrollments?.[index.uid]?.status === 'active');
       if (!enrolled) throw httpError(403, 'STUDENT_NOT_ENROLLED', 'No tienes una matrícula activa para este año lectivo.');

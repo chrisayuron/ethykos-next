@@ -66,8 +66,10 @@ function revokeStudentAccess(reason){if(accessRevoked)return;accessRevoked=true;
 auth.onAuthStateChanged(async user=>{
  if(!user){location.replace('login.html');return;}
  try{
-  await user.reload();if(!user.emailVerified)throw new Error('La cuenta no está habilitada.');
-  const token=await user.getIdToken(true),response=await fetch('/api/institutions/context',{headers:{Authorization:`Bearer ${token}`}}),data=await response.json().catch(()=>({}));
+  await user.reload();
+  const tokenResult=await user.getIdTokenResult(true);
+  if(tokenResult.claims.role!=='student'||typeof tokenResult.claims.institutionId!=='string')throw new Error('La sesión estudiantil no es válida. Ingresa nuevamente con tu documento y PIN.');
+  const token=await user.getIdToken(),response=await fetch('/api/institutions/context',{headers:{Authorization:`Bearer ${token}`}}),data=await response.json().catch(()=>({}));
   if(!response.ok)throw new Error(data.message||'No se pudo validar tu matrícula.');
   const wanted=sessionStorage.getItem('ethykosInstitutionId'),selected=(data.institutions||[]).find(x=>x.role==='student'&&(!wanted||wanted===x.institutionId));
   if(!selected)throw new Error('No tienes una matrícula activa en un año lectivo vigente. Comunícate con tu institución.');
