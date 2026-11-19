@@ -94,7 +94,6 @@ document.addEventListener('change',async e=>{
  if(teacher){try{await api('POST',{action:'assignTeacher',data:{groupId:teacher.dataset.assignTeacher,teacherUid:teacher.value}});msg('teacherMsg','Asignación de docente actualizada.');await refresh();}catch(err){msg('teacherMsg',err.message,'error');await refresh();}}
  if(student&&student.value){try{await api('POST',{action:'enrollStudent',data:{groupId:student.value,studentUid:student.dataset.enrollStudent}});msg('studentMsg','Matrícula registrada correctamente.');await refresh();}catch(err){msg('studentMsg',err.message,'error');await refresh();}}
 });
-$('studentForm').onsubmit=async e=>{e.preventDefault();try{await api('POST',{action:'enrollStudent',data:{groupId:$('studentGroup').value,studentUid:$('studentUid').value}});credentialBatch.filter(x=>x.uid===$('studentUid').value).forEach(x=>x.groupId=$('studentGroup').value);renderCredentials();msg('studentMsg','Estudiante matriculado correctamente.');await refresh();showView('summary');}catch(x){msg('studentMsg',x.message,'error');}};
 $('logout').onclick=()=>auth.signOut();
 auth.onAuthStateChanged(async u=>{
  $('app').classList.add('hidden');$('logout').classList.add('hidden');$('accessState').classList.remove('hidden');
