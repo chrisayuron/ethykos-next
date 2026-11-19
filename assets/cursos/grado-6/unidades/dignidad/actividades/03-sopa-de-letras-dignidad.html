@@ -221,7 +221,7 @@ textarea:focus{outline:3px solid #477c7820;border-color:var(--teal)}
   }
   document.getElementById("explanation").addEventListener("input",updateFinish);
   document.getElementById("clearSelection").addEventListener("click",()=>{first=null;feedbackEl.className="feedback";feedbackEl.textContent="Selección limpia. Toca una letra para comenzar.";render();});
-  document.getElementById("resetGame").addEventListener("click",()=>{found.clear();first=null;completed=false;document.getElementById("reflection").classList.add("hidden");document.getElementById("complete").classList.remove("show");document.getElementById("explanation").value="";makePuzzle();feedbackEl.className="feedback";feedbackEl.textContent="Sopa reiniciada. ¡Inténtalo de nuevo!";render();});
+  document.getElementById("resetGame").addEventListener("click",()=>{found.clear();first=null;completed=false;document.getElementById("reflection").classList.add("hidden");document.getElementById("complete").classList.remove("show");document.getElementById("explanation").value="";document.getElementById("explanation").disabled=false;document.getElementById("wordChoices").innerHTML="";document.getElementById("finish").disabled=true;makePuzzle();feedbackEl.className="feedback";feedbackEl.textContent="Sopa reiniciada. ¡Inténtalo de nuevo!";render();});
   document.getElementById("finish").addEventListener("click",()=>{
     const selected=[...document.querySelectorAll("#wordChoices input:checked")].map(x=>x.value);
     const explanation=document.getElementById("explanation").value.trim();
