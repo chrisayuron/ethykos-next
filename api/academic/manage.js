@@ -44,6 +44,15 @@ function createHandler({getAdminFn=getAdmin,requireGlobalAdminFn=requireGlobalAd
     if(startsAt&&endsAt&&Date.parse(endsAt)<Date.parse(startsAt))throw httpError(400,'INVALID_DATE_RANGE','La fecha final no puede ser anterior a la inicial.');
     if(yp&&yp.status!=='preparing')throw httpError(409,'YEAR_ALREADY_EXISTS','Ese año lectivo ya existe y no se puede sobrescribir.');
     updates[`${root}/profile`]={...(yp||{}),name,startsAt,endsAt,status:'preparing',createdAt:yp?.createdAt||now,updatedAt:now,createdBy:yp?.createdBy||ctx.user.uid};
+   }else if(action==='editYear'){
+    if(!yp)throw httpError(404,'YEAR_NOT_FOUND','El año lectivo seleccionado no existe.');
+    if(yp.status==='closed')throw httpError(409,'YEAR_CLOSED','No se pueden editar fechas de un año lectivo cerrado.');
+    const name=String(data.name||yp.name||year).trim(),startsAt=data.startsAt||null,endsAt=data.endsAt||null;
+    if(!name||name.length>100)throw httpError(400,'INVALID_YEAR_NAME','El nombre del año lectivo es obligatorio.');
+    if(startsAt&&Number.isNaN(Date.parse(startsAt)))throw httpError(400,'INVALID_START_DATE','La fecha de inicio no es válida.');
+    if(endsAt&&Number.isNaN(Date.parse(endsAt)))throw httpError(400,'INVALID_END_DATE','La fecha de finalización no es válida.');
+    if(startsAt&&endsAt&&Date.parse(endsAt)<Date.parse(startsAt))throw httpError(400,'INVALID_DATE_RANGE','La fecha final no puede ser anterior a la inicial.');
+    updates[root+'/profile']={...yp,name,startsAt,endsAt,updatedAt:now,updatedBy:ctx.user.uid};
    }else if(action==='activateYear'){
     if(!yp)throw httpError(404,'YEAR_NOT_FOUND','Primero crea el año lectivo.');
     if(yp.status==='closed')throw httpError(409,'YEAR_CLOSED','Un año lectivo cerrado no se puede reabrir.');
