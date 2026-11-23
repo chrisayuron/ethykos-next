@@ -54,7 +54,7 @@
           ".read": "auth != null && auth.token.email_verified === true && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
           ".write": "auth != null && auth.token.email_verified === true && auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83'",
           "profile": {
-            ".read": "auth != null && auth.token.email_verified === true && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student') && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && data.child('status').val() === 'active'))"
+            ".read": "auth != null && (auth.token.email_verified === true || (auth.token.role === 'student' && auth.token.institutionId === $institutionId)) && (auth.uid === '8mheoQqcekSQkpK5S8qTonUWKt83' || (root.child('memberships').child(auth.uid).child($institutionId).child('status').val() === 'active' && (root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'teacher' || root.child('memberships').child(auth.uid).child($institutionId).child('role').val() === 'student') && root.child('institutions').child($institutionId).child('profile').child('activeAcademicYearId').val() === $yearId && data.child('status').val() === 'active'))"
           },
           "groups": {
             "$groupId": {
