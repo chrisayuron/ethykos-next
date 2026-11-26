@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="app">
-<header class="topbar"><div class="brand"><div class="brandmark">✦</div><div>Éthykos<small>La Ruta del Carácter</small></div></div><div class="topstats"><div id="studentIdentity" class="stat" style="max-width:260px;overflow:hidden;text-overflow:ellipsis">Estudiante</div><div class="stat">⚡ <b id="topXp">0</b> <span>XP</span></div><div class="stat">🏅 <b id="topBadges">0</b></div><button class="btn btn-ghost" id="logoutBtn" title="Cerrar sesión">↪</button></div></header>
+<header class="topbar"><div class="brand"><div class="brandmark">✦</div><div>Éthykos<small>La Ruta del Carácter</small></div></div><div class="topstats"><div class="stat">⚡ <b id="topXp">0</b> <span>XP</span></div><div class="stat">🏅 <b id="topBadges">0</b></div></div></header>
 <main id="mapScreen" class="screen active"><div class="layout"><section>
 <div class="hero"><div class="hero-row"><div><div class="eyebrow">Grado 6.º · Periodo 1 · Dignidad</div><h1>Mi dignidad y la de los demás<br>importan.</h1><p>Explora el valor de cada persona, cómo expresar respeto y cómo actuar ante situaciones que afectan la dignidad propia y ajena.</p></div><div class="hero-icon">🌱</div></div><div class="progressline"><span id="heroProgress" style="width:0%"></span></div><div class="progresscaption"><span id="progressText">0 de 7 actividades completadas</span><span id="progressPct">0%</span></div></div>
 <div class="section-head"><div><div class="eyebrow">Tu camino</div><h2>El mundo de la Dignidad</h2><p>Avanza paso a paso. Cada decisión te enseña algo.</p></div></div>
@@ -78,7 +78,7 @@ auth.onAuthStateChanged(async user=>{
   const id=selected.institutionId,yearId=selected.institution.academicYear;sessionStorage.setItem('ethykosInstitutionId',id);
   yearRef=db.ref(`academicYears/${id}/${yearId}/profile`);yearListener=s=>{const y=s.val();if(!y||y.status!=='active')revokeStudentAccess('El año lectivo ha sido cerrado. Tu acceso académico terminó.');};yearRef.on('value',yearListener,()=>revokeStudentAccess('El año lectivo dejó de estar disponible. Tu acceso académico terminó.'));
   membershipRef=db.ref(`memberships/${user.uid}/${id}`);membershipListener=s=>{const m=s.val();if(!m||m.status!=='active'||m.role!=='student')revokeStudentAccess('Tu matrícula en esta institución ha sido desactivada.');};membershipRef.on('value',membershipListener);
-  document.documentElement.dataset.authenticated='true';const displayName=user.displayName||tokenResult.claims.name||tokenResult.claims.studentName||'Estudiante';const identity=$('studentIdentity');if(identity)identity.textContent=displayName;const logout=$('logoutBtn');if(logout)logout.onclick=async()=>{if(membershipRef&&membershipListener)membershipRef.off('value',membershipListener);if(yearRef&&yearListener)yearRef.off('value',yearListener);sessionStorage.removeItem('ethykosInstitutionId');await auth.signOut();location.replace('login.html');};
+  document.documentElement.dataset.authenticated='true';
  }catch(e){await auth.signOut();location.replace('login.html?error=access');}
 });
 </script>
