@@ -10,7 +10,7 @@
 </head>
 <body>
 <div class="app">
-<header class="topbar"><div class="brand"><div class="brandmark">✦</div><div>Éthykos<small>La Ruta del Carácter</small></div></div><div class="topstats"><div class="stat">⚡ <b id="topXp">0</b> <span>XP</span></div><div class="stat">🏅 <b id="topBadges">0</b></div></div></header>
+<header class="topbar"><div class="brand"><div class="brandmark">✦</div><div>Éthykos<small>La Ruta del Carácter</small></div></div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end"><div id="studentSessionName" style="font-size:13px;font-weight:800;color:var(--muted);display:none"></div><button id="studentLogout" class="btn btn-light" style="padding:8px 12px;display:none">Cerrar sesión</button><div class="topstats"><div class="stat">⚡ <b id="topXp">0</b> <span>XP</span></div><div class="stat">🏅 <b id="topBadges">0</b></div></div></div></header>
 <main id="mapScreen" class="screen active"><div class="layout"><section>
 <div class="hero"><div class="hero-row"><div><div class="eyebrow">Grado 6.º · Periodo 1 · Dignidad</div><h1>Mi dignidad y la de los demás<br>importan.</h1><p>Explora el valor de cada persona, cómo expresar respeto y cómo actuar ante situaciones que afectan la dignidad propia y ajena.</p></div><div class="hero-icon">🌱</div></div><div class="progressline"><span id="heroProgress" style="width:0%"></span></div><div class="progresscaption"><span id="progressText">0 de 7 actividades completadas</span><span id="progressPct">0%</span></div></div>
 <div class="section-head"><div><div class="eyebrow">Tu camino</div><h2>El mundo de la Dignidad</h2><p>Avanza paso a paso. Cada decisión te enseña algo.</p></div></div>
@@ -66,6 +66,7 @@ if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.database();
 let membershipRef=null,membershipListener=null,yearRef=null,yearListener=null,accessRevoked=false;
 function revokeStudentAccess(reason){if(accessRevoked)return;accessRevoked=true;document.body.innerHTML=`<main style="max-width:620px;margin:12vh auto;padding:28px;font-family:Inter,sans-serif;text-align:center"><h1>Acceso desactivado</h1><p>${reason||'Tu acceso académico ha finalizado. Comunícate con el administrador.'}</p></main>`;if(membershipRef&&membershipListener)membershipRef.off('value',membershipListener);if(yearRef&&yearListener)yearRef.off('value',yearListener);setTimeout(()=>auth.signOut().finally(()=>{sessionStorage.removeItem('ethykosInstitutionId');location.replace('login.html?error=revoked');}),1800);}
+const logoutBtn=document.getElementById("studentLogout"),sessionNameEl=document.getElementById("studentSessionName");logoutBtn?.addEventListener("click",async()=>{logoutBtn.disabled=true;try{sessionStorage.removeItem("ethykosInstitutionId");await auth.signOut();location.replace("login.html");}catch(err){logoutBtn.disabled=false;alert("No se pudo cerrar la sesión. Intenta nuevamente.");}});
 auth.onAuthStateChanged(async user=>{
  if(!user){location.replace('login.html');return;}
  try{
@@ -79,7 +80,7 @@ auth.onAuthStateChanged(async user=>{
   const id=selected.institutionId,yearId=selected.institution.academicYear;sessionStorage.setItem('ethykosInstitutionId',id);
   yearRef=db.ref(`academicYears/${id}/${yearId}/profile`);yearListener=s=>{const y=s.val();if(!y||y.status!=='active')revokeStudentAccess('El año lectivo ha sido cerrado. Tu acceso académico terminó.');};yearRef.on('value',yearListener,()=>revokeStudentAccess('El año lectivo dejó de estar disponible. Tu acceso académico terminó.'));
   membershipRef=db.ref(`memberships/${user.uid}/${id}`);membershipListener=s=>{const m=s.val();if(!m||m.status!=='active'||m.role!=='student')revokeStudentAccess('Tu matrícula en esta institución ha sido desactivada.');};membershipRef.on('value',membershipListener);
-  document.documentElement.dataset.authenticated='true';
+  const studentName=user.displayName||tokenResult.claims.name||tokenResult.claims.fullName||"Estudiante";if(sessionNameEl){sessionNameEl.textContent="👤 "+studentName;sessionNameEl.style.display="block";}if(logoutBtn)logoutBtn.style.display="inline-block";document.documentElement.dataset.authenticated='true';
  }catch(e){await auth.signOut();location.replace('login.html?error=access');}
 });
 </script>
